@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Что делать?? — Умные рекомендации</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; background: #f5f5f5; }
+    header { background: #4a90e2; color: white; padding: 20px; text-align: center; }
+    nav { display: flex; justify-content: center; gap: 20px; margin-top: 10px; }
+    nav a { color: white; text-decoration: none; font-weight: bold; }
+    nav a.active { text-decoration: underline; }
+    .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
+    .tab { display: none; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    label { display: block; margin: 10px 0 5px; }
+    input, select { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; }
+    .btn { display: inline-block; margin-top: 15px; padding: 10px 20px; background: #4a90e2; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    .activity-card { padding: 10px; border: 1px solid #ddd; border-radius: 6px; margin: 10px 0; }
+    footer { text-align: center; padding: 20px; font-size: 0.8em; color: #777; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Что делать??</h1>
+  <nav>
+    <a href="#" data-tab="main" class="active">Главная</a>
+    <a href="#" data-tab="filters">Найти активность</a>
+    <a href="#" data-tab="favorites">Избранное</a>
+    <a href="#" data-tab="profile">Профиль</a>
+    <a href="#" data-tab="auth">Войти</a>
+  </nav>
+</header>
+
+<div class="container">
+
+  <section id="main" class="tab" style="display:block;">
+    <h2>Добро пожаловать!</h2>
+    <p>Это главная страница приложения.</p>
+  </section>
+
+  <section id="filters" class="tab">
+    <h2>Подберите активность</h2>
+
+    <label for="mood">Настроение:</label>
+    <select id="mood">
+      <option>Весёлое</option>
+      <option>Спокойное</option>
+      <option>Активное</option>
+      <option>Романтичное</option>
+    </select>
+
+    <label for="time">Время дня:</label>
+    <select id="time">
+      <option>Утро</option>
+      <option>День</option>
+      <option>Вечер</option>
+    </select>
+
+    <label for="weather">Погода:</label>
+    <select id="weather">
+      <option>Солнечно</option>
+      <option>Облачно</option>
+      <option>Дождь</option>
+      <option>Снег</option>
+    </select>
+
+    <label for="budget">Бюджет (₽):</label>
+    <input type="number" id="budget" placeholder="Максимальная сумма">
+
+    <label for="people">Количество людей:</label>
+    <input type="number" id="people" value="1" min="1">
+
+    <button class="btn" onclick="showRecommendations()">Показать рекомендации</button>
+
+    <div id="recommendations"></div>
+  </section>
+
+  <section id="favorites" class="tab">
+    <h2>Избранное</h2>
+    <div id="favoritesList"><p>Пока тут ничего нет.</p></div>
+  </section>
+
+  <section id="profile" class="tab">
+    <h2>Профиль</h2>
+    <div id="profileContent"></div>
+    <h3>История выполненных активностей:</h3>
+    <ul id="historyList"></ul>
+  </section>
+
+  <section id="auth" class="tab">
+    <h2>Войти или зарегистрироваться</h2>
+    <label for="username">Имя пользователя:</label>
+    <input type="text" id="username">
+    <label for="password">Пароль:</label>
+    <input type="password" id="password">
+    <button class="btn" onclick="register()">Регистрация</button>
+    <button class="btn" onclick="login()">Войти</button>
+  </section>
+
+</div>
+
+<footer>
+  © 2025 Что делать?? — Умная система рекомендаций активностей
+</footer>
+
+<script>
+  const activities = [
+    {
+      id: 1,
+      name: "Прогулка в парке",
+      description: "Прогулка на свежем воздухе",
+      mood: "спокойное",
+      time: "утро",
+      budget: 0,
+      people: 1,
+      weather: "солнечно"
+    },
+    {
+      id: 2,
+      name: "Кино с друзьями",
+      description: "Смотреть новый фильм в кинотеатре",
+      mood: "весёлое",
+      time: "вечер",
+      budget: 500,
+      people: 3,
+      weather: "облачно"
+    },
+    {
+      id: 3,
+      name: "Посидеть в кафе",
+      description: "Вечер в уютном кафе",
+      mood: "романтичное",
+      time: "вечер",
+      budget: 800,
+      people: 2,
+      weather: "дождь"
+    },
+    {
+      id: 4,
+      name: "Прочесть книгу",
+      description: "Чтение в любом месте",
+      mood: "спокойное",
+      time: "утро",
+      budget: 0,
+      people: 1,
+      weather: "солнечно"
+    },
+    {
+      id: 5,
+      name: "Настольные игры",
+      description: "Интересная игра с близкими",
+      mood: "спокойное",
+      time: "утро",
+      budget: 0,
+      people: 1,
+      weather: "солнечно"
+    },
+    {
+      id: 6,
+      name: "Сыграть видеоигры",
+      description: "Любимые игры дома",
+      mood: "спокойное",
+      time: "утро",
+      budget: 0,
+      people: 1,
+      weather: "солнечно"
+    },
+    
+    
+  ];
+
+  const tabs = document.querySelectorAll('.tab');
+  const links = document.querySelectorAll('nav a');
+
+  links.forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const target = link.getAttribute('data-tab');
+      tabs.forEach(tab => tab.style.display = 'none');
+      document.getElementById(target).style.display = 'block';
+      links.forEach(item => item.classList.remove('active'));
+      link.classList.add('active');
+      updateProfile();
+      loadFavorites();
+      loadHistory();
+    });
+  });
+
+  function register() {
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+    if (!username || !password) {
+      alert('Введите имя пользователя и пароль.');
+      return;
+    }
+    if (localStorage.getItem(username)) {
+      alert('Такой пользователь уже существует.');
+      return;
+    }
+    localStorage.setItem(username, password);
+    localStorage.setItem('currentUser', username);
+    alert('Регистрация прошла успешно!');
+    updateProfile();
+  }
+
+  function login() {
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+    if (localStorage.getItem(username) === password) {
+      localStorage.setItem('currentUser', username);
+      alert('Вход выполнен!');
+      updateProfile();
+    } else {
+      alert('Неверное имя пользователя или пароль.');
+    }
+  }
+
+  function logout() {
+    localStorage.removeItem('currentUser');
+    updateProfile();
+  }
+
+  function updateProfile() {
+    const profileContent = document.getElementById('profileContent');
+    const user = localStorage.getItem('currentUser');
+    if (user) {
+      profileContent.innerHTML = `<p>Привет, <strong>${user}</strong>!</p>
+      <button class="btn" onclick="logout()">Выйти</button>`;
+    } else {
+      profileContent.innerHTML = `<p>Вы не вошли в систему.</p>`;
+    }
+  }
+
+  function showRecommendations() {
+    const mood = document.getElementById('mood').value.toLowerCase();
+    const time = document.getElementById('time').value.toLowerCase();
+    const weather = document.getElementById('weather').value.toLowerCase();
+    const budget = parseFloat(document.getElementById('budget').value) || Infinity;
+    const people = parseInt(document.getElementById('people').value);
+
+    const filtered = activities.filter(a =>
+      a.mood === mood &&
+      a.time === time &&
+      a.weather === weather &&
+      a.budget <= budget &&
+      a.people <= people
+    );
+
+    const container = document.getElementById('recommendations');
+    container.innerHTML = '';
+
+    if (filtered.length === 0) {
+      container.innerHTML = '<p>Подходящих активностей не найдено.</p>';
+      return;
+    }
+
+    filtered.forEach(a => {
+      const card = document.createElement('div');
+      card.className = 'activity-card';
+      card.innerHTML = `<strong>${a.name}</strong><p>${a.description}</p>
+      <button class="btn" onclick="addToFavorites(${a.id})">В избранное</button>
+      <button class="btn" onclick="addToHistory(${a.id})">Выполнено</button>`;
+      container.appendChild(card);
+    });
+  }
+
+  function addToFavorites(id) {
+    const user = localStorage.getItem('currentUser');
+    if (!user) {
+      alert('Войдите в систему.');
+      return;
+    }
+    const key = `${user}_favorites`;
+    const favs = JSON.parse(localStorage.getItem(key) || '[]');
+    if (!favs.includes(id)) {
+      favs.push(id);
+      localStorage.setItem(key, JSON.stringify(favs));
+    }
+    loadFavorites();
+  }
+
+  function loadFavorites() {
+    const user = localStorage.getItem('currentUser');
+    const container = document.getElementById('favoritesList');
+    if (!user) {
+      container.innerHTML = '<p>Войдите, чтобы видеть избранное.</p>';
+      return;
+    }
+    const favs = JSON.parse(localStorage.getItem(`${user}_favorites`) || '[]');
+    if (favs.length === 0) {
+      container.innerHTML = '<p>Пока тут ничего нет.</p>';
+      return;
+    }
+    container.innerHTML = '';
+    favs.forEach(id => {
+      const a = activities.find(act => act.id === id);
+      if (a) {
+        const div = document.createElement('div');
+        div.className = 'activity-card';
+        div.innerHTML = `<strong>${a.name}</strong><p>${a.description}</p>`;
+        container.appendChild(div);
+      }
+    });
+  }
+
+  function addToHistory(id) {
+    const user = localStorage.getItem('currentUser');
+    if (!user) {
+      alert('Войдите в систему.');
+      return;
+    }
+    const key = `${user}_history`;
+    const history = JSON.parse(localStorage.getItem(key) || '[]');
+    const date = new Date().toLocaleString();
+    history.push({ id, date });
+    localStorage.setItem(key, JSON.stringify(history));
+    loadHistory();
+  }
+
+  function loadHistory() {
+    const user = localStorage.getItem('currentUser');
+    const list = document.getElementById('historyList');
+    if (!user) {
+      list.innerHTML = '<li>Войдите, чтобы видеть историю.</li>';
+      return;
+    }
+    const history = JSON.parse(localStorage.getItem(`${user}_history`) || '[]');
+    if (history.length === 0) {
+      list.innerHTML = '<li>История пуста.</li>';
+      return;
+    }
+    list.innerHTML = '';
+    history.forEach(item => {
+      const a = activities.find(act => act.id === item.id);
+      if (a) {
+        const li = document.createElement('li');
+        li.textContent = `${item.date}: ${a.name}`;
+        list.appendChild(li);
+      }
+    });
+  }
+
+  window.addEventListener('load', () => {
+    updateProfile();
+    loadFavorites();
+    loadHistory();
+  });
+</script>
+
+</body>
+</html>
